@@ -1,0 +1,16 @@
+{
+  "name": "digitalboard",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/**/*"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^12.11.1",
+    "typescript": "^4.5.5"
+  }
+}
