@@ -1,10 +1,20 @@
 import request from 'supertest';
 import app from '../app';
 import User, { IUser } from '../modules/user/UserModel';
+import { expectValidationError } from '../../test/assertions';
 
 const firstName = 'John';
 const lastName = 'Doe';
 const password = '123456';
+
+const testCreateUserValidationError = async (data: any) => {
+    const response = await 
+        request(app)
+        .post('/users')
+        .send(data);
+    
+    expectValidationError(response);
+}
 
 describe('User', () => {
     it('Should be create an new user and return it data with a token', async () => {
@@ -68,48 +78,20 @@ describe('User', () => {
     });
 
     it('Should return bad request error when email has white spaces or if it is not e-mail or if it is empty', async () => {
-        let email = ' user123@gmail.com';
-        let response = await 
-            request(app)
-            .post('/users')
-            .send({firstName, lastName, email, password,});
+        testCreateUserValidationError({ firstName, lastName, email: ' user123@gmail.com', password });
+        testCreateUserValidationError({ firstName, lastName, email: 'user123@gmail.com ', password });
+        testCreateUserValidationError({ firstName, lastName, email: '', password });
+        testCreateUserValidationError({ firstName, lastName, email: 'not-an-email', password });
+        testCreateUserValidationError({ firstName, lastName, password });
+    });
 
-        expect(response.statusCode).toEqual(400);
-        let data = JSON.parse(response.text);
-        expect('error' in data);
-        expect('fields' in data);
-
-        email = 'user123@gmail.com ';
-        response = await 
-            request(app)
-            .post('/users')
-            .send({firstName, lastName, email, password,});
-
-        expect(response.statusCode).toEqual(400);
-        data = JSON.parse(response.text);
-        expect('error' in data);
-        expect('fields' in data);
-
-        email = '';
-        response = await 
-            request(app)
-            .post('/users')
-            .send({firstName, lastName, email, password,});
-
-        expect(response.statusCode).toEqual(400);
-        data = JSON.parse(response.text);
-        expect('error' in data);
-        expect('fields' in data);
-
-        email = 'not-an-email';
-        response = await 
-            request(app)
-            .post('/users')
-            .send({firstName, lastName, email, password,});
-
-        expect(response.statusCode).toEqual(400);
-        data = JSON.parse(response.text);
-        expect('error' in data);
-        expect('fields' in data);
+    it('Should return bad request error when firstName, lastName or password is empty', async () => {
+        let email = 'user123@gmail.com';
+        testCreateUserValidationError({ firstName: '', lastName, email, password });
+        testCreateUserValidationError({ firstName, lastName: '', email, password });
+        testCreateUserValidationError({ firstName, lastName, email, password: '' });
+        testCreateUserValidationError({ lastName, email, password });
+        testCreateUserValidationError({ firstName, email, password });
+        testCreateUserValidationError({ firstName, lastName, email });
     });
 });
