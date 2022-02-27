@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "outDir": "build",
+        "resolveJsonModule": true,
+        "typeRoots": [
+            "./src/@types",
+            "./node_modules/@types",
+            "../../node_modules/@types"
+        ],
+        "paths": {
+            "~/*": ["./src/*"]
+        }
+    }
+}
