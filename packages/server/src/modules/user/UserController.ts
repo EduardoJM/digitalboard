@@ -9,6 +9,11 @@ interface UserRegisterBody {
     password: string;
 }
 
+interface UserLoginBody {
+    email: string;
+    password: string;
+}
+
 export default class UserController {
     async create(request: Request<any, any, UserRegisterBody>, response: Response) {
         const {firstName, lastName, email, password} = request.body;
@@ -32,5 +37,17 @@ export default class UserController {
 
         const token = generateToken(user);
         return response.status(201).json({ token, user });
+    }
+
+    async auth(request: Request<any, any, UserLoginBody>, response: Response) {
+        const {email, password} = request.body;
+
+        const user = await User.findOne({email});
+        if (!user) {
+            return response.status(404).json({ error: 'user-not-found' });
+        }
+
+        const token = generateToken(user);
+        return response.status(200).json({ user, token });
     }
 }

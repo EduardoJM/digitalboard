@@ -9,5 +9,15 @@ export const UserCreateSchema = Joi.object().keys({
 
 export const UserCreateValidation = celebrate(
     { body: UserCreateSchema },
-    { abortEarly: true, convert: true },
+    { abortEarly: false, convert: true },
+);
+
+export const UserLoginSchema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+});
+
+export const UserLoginValidation = celebrate(
+    { body: UserLoginSchema },
+    { abortEarly: false, convert: true },
 );

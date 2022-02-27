@@ -16,6 +16,15 @@ const testCreateUserValidationError = async (data: any) => {
     expectValidationError(response);
 }
 
+const testLoginuserValidationError = async(data: any) => {
+    const response = await
+        request(app)
+        .post('/users/auth')
+        .send(data);
+    
+    expectValidationError(response);
+};
+
 describe('User', () => {
     it('Should be create an new user and return it data with a token', async () => {
         const email = 'john.doe@gmail.com';
@@ -93,5 +102,48 @@ describe('User', () => {
         testCreateUserValidationError({ lastName, email, password });
         testCreateUserValidationError({ firstName, email, password });
         testCreateUserValidationError({ firstName, lastName, email });
+    });
+
+    it('Should user can login with email and password and returns the user data and token in response', async () => {
+        const email = 'login.test@gmail.com';
+        
+        const user = await new User({ email, password, firstName, lastName }).save();
+        const response = await
+            request(app)
+            .post('/users/auth')
+            .send({ email, password });
+        
+        expect(response.statusCode).toEqual(200);
+
+        const data = JSON.parse(response.text);
+        expect('token' in data).toBeTruthy();
+        expect('user' in data).toBeTruthy();
+        expect(data.user.firstName).toEqual(user.firstName);
+        expect(data.user.lastName).toEqual(user.lastName);
+        expect(data.user.email).toEqual(user.email);
+
+        expect('password' in data.user).toBeFalsy();
+    });
+
+    it('Should return not found if an not associated email is used', async () => {
+        const email = 'login.test.nf@gmail.com';
+        
+        const response = await
+            request(app)
+            .post('/users/auth')
+            .send({ email, password });
+        
+        expect(response.statusCode).toEqual(404);
+        const data = JSON.parse(response.text);
+        expect('error' in data).toBeTruthy();
+    });
+
+    it('Should return validation error if invalid data was sent', async () => {
+        testLoginuserValidationError({ email: ' invalid.email@gmail.com', password });
+        testLoginuserValidationError({ email: 'invalid.email@gmail.com ', password });
+        testLoginuserValidationError({ email: 'invalid', password });
+        testLoginuserValidationError({ password });
+        testLoginuserValidationError({ email: 'email@email.com.br', password: '' });
+        testLoginuserValidationError({ email: 'email@email.com.br' });
     });
 });
