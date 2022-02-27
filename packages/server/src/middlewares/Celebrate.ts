@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { isCelebrateError } from 'celebrate';
 
-export interface ErrorItem {
+interface ErrorItem {
     path: string;
     type: string;
 }
